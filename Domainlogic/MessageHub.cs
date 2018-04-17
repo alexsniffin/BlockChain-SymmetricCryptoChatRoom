@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domainlogic.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using Models;
 
@@ -10,6 +11,13 @@ namespace Domainlogic
     {
         // connected IDs
         private static readonly HashSet<string> ConnectedIds = new HashSet<string>();
+
+        private readonly IBlockchainLogic _blockchainLogic;
+
+        public MessageHub(IBlockchainLogic blockchainLogic)
+        {
+            _blockchainLogic = blockchainLogic;
+        }
 
         public override async Task OnConnectedAsync()
         {
@@ -25,9 +33,12 @@ namespace Domainlogic
             await Clients.All.SendAsync("SendAction", "left", ConnectedIds.Count);
         }
 
-        public async Task Send(MessagePayload message)
+        public async Task Send(NodePayload nodePayload)
         {
-            await Clients.All.SendAsync("SendMessage", message);
+            var updatedBlockchain = _blockchainLogic.ResolveBlockchain(nodePayload);
+            
+            // Broadcast the updated blockchain to all users and who created it and at what time
+            await Clients.All.SendAsync("SendMessage", updatedBlockchain, nodePayload.NewBlock.Name, nodePayload.NewBlock.Date);
         }
     }
 }

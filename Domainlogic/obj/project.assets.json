@@ -2375,59 +2375,47 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Amir-Acer\\.nuget\\packages\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "/Users/sni3479/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\workspace\\SymmetricCryptoChatRoom\\Domainlogic\\Domainlogic.csproj",
+      "projectUniqueName": "/Users/sni3479/Repos/BlockChain-SymmetricCryptoChatRoom/Domainlogic/Domainlogic.csproj",
       "projectName": "Domainlogic",
-      "projectPath": "C:\\workspace\\SymmetricCryptoChatRoom\\Domainlogic\\Domainlogic.csproj",
-      "packagesPath": "C:\\Users\\Amir-Acer\\.nuget\\packages\\",
-      "outputPath": "C:\\workspace\\SymmetricCryptoChatRoom\\Domainlogic\\obj\\",
+      "projectPath": "/Users/sni3479/Repos/BlockChain-SymmetricCryptoChatRoom/Domainlogic/Domainlogic.csproj",
+      "packagesPath": "/Users/sni3479/.nuget/packages/",
+      "outputPath": "/Users/sni3479/Repos/BlockChain-SymmetricCryptoChatRoom/Domainlogic/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Amir-Acer\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/sni3479/.config/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "netcoreapp2.0": {
           "projectReferences": {
-            "C:\\workspace\\SymmetricCryptoChatRoom\\Models\\Models.csproj": {
-              "projectPath": "C:\\workspace\\SymmetricCryptoChatRoom\\Models\\Models.csproj"
+            "/Users/sni3479/Repos/BlockChain-SymmetricCryptoChatRoom/Models/Models.csproj": {
+              "projectPath": "/Users/sni3479/Repos/BlockChain-SymmetricCryptoChatRoom/Models/Models.csproj"
             }
           }
         }
-      },
-      "warningProperties": {
-        "warnAsError": [
-          "NU1605"
-        ]
       }
     },
     "frameworks": {
       "netcoreapp2.0": {
         "dependencies": {
-          "Microsoft.AspNetCore.SignalR": {
-            "target": "Package",
-            "version": "[1.0.0-preview2-final, )"
-          },
           "Microsoft.NETCore.App": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[2.0.0, )",
-            "autoReferenced": true
+            "version": "2.0"
+          },
+          "Microsoft.AspNetCore.SignalR": {
+            "target": "Package",
+            "version": "1.0.0-preview2-final"
           }
         },
         "imports": [

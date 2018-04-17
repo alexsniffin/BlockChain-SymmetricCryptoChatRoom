@@ -2,55 +2,21 @@ angular.module("chatApp", [])
   .config(['$compileProvider', function ($compileProvider) {
       $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|local|data|chrome-extension):/);
   }])
-  .directive('fileModel', [
-   '$parse',
-   function ($parse) {
-     return {
-       restrict: 'A',
-       link: function(scope, element, attrs) {
-         var model = $parse(attrs.fileModel);
-         var modelSetter = model.assign;
-
-         element.bind('change', function(){
-           scope.$apply(function(){
-             if (attrs.multiple) {
-               modelSetter(scope, element[0].files);
-             }
-             else {
-               modelSetter(scope, element[0].files[0]);
-             }
-           });
-         });
-       }
-     };
-   }])
-  .directive("fileRead", [function () {
-      return {
-          scope: {
-              fileRead: "="
-          },
-          link: function (scope, element, attributes) {
-              element.bind("change", function (changeEvent) {
-                  var reader = new FileReader();
-                  reader.onload = function (loadEvent) {
-                      scope.$apply(function () {
-                          scope.fileRead = loadEvent.target.result;
-                      });
-                  }
-                  reader.readAsDataURL(changeEvent.target.files[0]);
-              });
-
-              scope.$watch(attributes.fileRead, function(file) {
-                element.val(file);
-              });
-          }
-      }
-  }])
   .controller("chatCtrl", ["$scope", "$timeout", ($scope, $timeout) => {
     $scope.name = "";
-    $scope.password = "";
+    $scope.key = "";
     $scope.initialized = false;
     $scope.activeUserCount = 0;
+    $scope.blockchain = [
+      {
+        index: 0,
+        name: "gensis_block",
+        previousHash: "",
+        date: new Date(),
+        data: "gensis_message",
+        hash: sha256.create().update(new Date().toString()).hex()
+      }
+    ];
 
     var crypto = (key) => {
       var hash = sha256.create();
@@ -91,7 +57,7 @@ angular.module("chatApp", [])
 
     $scope.initialize = () => {
       $scope.initialized = true;
-      $scope.crypto = crypto($scope.password)
+      $scope.crypto = crypto($scope.key)
       init();
     };
 
@@ -99,15 +65,15 @@ angular.module("chatApp", [])
       $scope.messages = [];
       var conn = new signalR.HubConnection("./chat");
 
-      conn.on("SendMessage", data => {
+      conn.on("SendMessage", (blockchain, name, date) => {
         $scope.$apply(() => {
+          $scope.blockchain = blockchain;
+
           // Add to the head of array
           $scope.messages.unshift({
-            name: data.name,
-            raw: data.message,
-            message: $scope.crypto.decrypt(data.message),
-            date: moment(data.date).format('h:mm:ss a'),
-            file: data.file ? { name: data.file.name, data: $scope.crypto.decrypt(data.file.data) } : null
+            name: name,
+            message: $scope.crypto.decrypt(blockchain[blockchain.length - 1].data),
+            date: moment(date).format('h:mm:ss a'),
           });
         });
       });
@@ -121,50 +87,31 @@ angular.module("chatApp", [])
       };
 
       $scope.clean = () => {
-        angular.element("input[type='file']").val(null);
         $scope.message = "";
-        $scope.fileInfo = null;
-        $scope.fileData = null;
-      };
-
-      $scope.validateBase64 = (base64) => {
-        base64 = base64.split(',')[1];
-        return new RegExp(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/).test(base64);
       };
 
       $scope.send = () => {
         var data = document.getElementById("message").value;
 
-        if ($scope.fileInfo) {
-          if (!$scope.fileData) {
-            var errorMessage = "File is being converted to base64";
-            alert(errorMessage);
-            throw new Error(errorMessage);
-          }
+        var previousBlock = $scope.blockchain[$scope.blockchain.length - 1];
 
-          $timeout(() => {
-            conn.invoke("Send", {
-              name: $scope.name,
-              message: $scope.crypto.encrypt($scope.message),
-              date: new Date(),
-              file: {
-                name: $scope.fileInfo.name,
-                data: $scope.crypto.encrypt($scope.fileData)
-              }
-            });
+        var newBlock = {
+          index: previousBlock.index + 1,
+          name:  $scope.name,
+          previousHash: previousBlock.hash,
+          date: new Date(),
+          data: $scope.crypto.encrypt($scope.message),
+        };
 
-          $scope.clean();
+        var hash = sha256.create().update(newBlock.index + newBlock.previousHash + newBlock.data).hex();
+        newBlock.hash = hash;
 
-          }, 100);
-        } else {
-          conn.invoke("Send", {
-            name: $scope.name,
-            message: $scope.crypto.encrypt($scope.message),
-            date: new Date()
-          });
+        conn.invoke("Send", {
+          newblock: newBlock,
+          blockchain: $scope.blockchain
+        });
 
-          $scope.clean();
-        }
+        $scope.clean();
       };
 
       conn.start()

@@ -20,8 +20,8 @@
     <div class="container">
         
         <div ng-hide="initialized">
-            <h3>Enter public chat room:</h3>
-            <p>Your <code>password</code> is not shared, both encryption and decryption (<code>AES-256-CTR</code> with <code>SHA-256</code> hash) is all done in client-slide</p>
+            <h3>Enter blockchain messaging network:</h3>
+            <p>Your <code>key</code> is not shared, both encryption and decryption (<code>AES-256-CTR</code> with <code>SHA-256</code> hash) is all done in client-side</p>
             <hr />
             <form ng-submit="initialize()">
                 <div class="form-group">
@@ -29,8 +29,8 @@
                     <input type="name" class="form-control" id="name" placeholder="Enter name" ng-model="name" required />
                 </div>
                 <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" class="form-control" id="password" placeholder="Enter password" ng-model="password" required />
+                    <label for="password">Key:</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter key" ng-model="key" required />
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Join</button>
@@ -40,7 +40,7 @@
         <div ng-show="initialized">
             <h3>Send a new message:</h3>
             <span class="label label-default pull-right">{{activeUserCount}} active</span>
-            <p>Note that <code>password</code> is never sent via a socket, You are responsible to exchange the symmetric key</p>
+            <p>Note that <code>key</code> is never sent via a socket. You are responsible to exchange the key via alternative means.</p>
             <hr />
             
             <form ng-show="initialized" ng-submit="send()">
@@ -48,10 +48,6 @@
                     <label for="message">Write the message text:</label>
                     <textarea  class="form-control" id="message" placeholder="Enter message" ng-model="message" required></textarea>
                 </div>
-                
-                <span>
-                    Browse attachment: <input class="form-control" id="file" type="file" file-read="fileData" file-model="fileInfo" />
-                </span>
                 
                 <br />
                 
@@ -68,18 +64,12 @@
                 <strong>Info!</strong> No message yet.
             </div>
             
-            <ul id="messages">
+            <ul id="messages" style="padding: 0px">
                 <div class="panel panel-default" ng-repeat="message in messages">
                     <div class="panel-heading">From: <label>{{message.name}}</label> <label class="pull-right">Sent on: {{message.date}}</label></div>
                     <div class="panel-body">
                         <pre ng-bind="message.message" ng-if="!message.view_raw"></pre>
                         <pre ng-bind="message.raw" ng-if="message.view_raw"></pre>
-                        <button class="btn btn-default" ng-click="message.view_raw = !message.view_raw">{{ !message.view_raw ? "View Raw" : "View Message" }}</button>
-
-                        <span class="label label-danger" ng-if="message.file && !validateBase64(message.file.data)">Invalid file</span>
-                        <a class="btn btn-primary" ng-click="download(message.file.data, message.file.name)" ng-if="message.file && validateBase64(message.file.data)">
-                            Download file
-                        </a>
                     </div>
                 </div>
             </ul>
